@@ -160,37 +160,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
         final data = json.decode(response.body);
         print("Response Data: $data"); // Log the full response data
 
-        final updateStatusResponse = await http.put(
-          Uri.parse(
-              'http://192.168.1.219:3000/don/updateProjectStatus/$projectId'),
-          body: json.encode({'project_status': 'Complete'}),
-          headers: {'Content-Type': 'application/json'},
-        );
-
-        if (updateStatusResponse.statusCode == 200) {
-          print('Project status updated successfully in the database');
-        } else {
-          print('Failed to update project status in the database');
-        }
-
         int index = _projects.indexWhere((p) => p.id == projectId);
         if (index != -1) {
           Project project = _projects[index];
-          print("Project before update: $project");
+          project.isComplete =
+              true; // Supposons que la prédiction marque le projet comme complet
 
           final DateFormat formatter = DateFormat('yyyy-MM-dd');
-          // Conversion des dates de projet
           if (data.containsKey('project_start_date')) {
-            project.startDate = formatter.parse(data['startDate']);
+            project.startDate = formatter.parse(data['project_start_date']);
           }
           if (data.containsKey('project_end_date')) {
-            project.endDate = formatter.parse(data['endDate']);
+            project.endDate = formatter.parse(data['project_end_date']);
           }
-          // Mise à jour de la durée totale du projet
           if (data.containsKey('total_duration')) {
             project.total_duration =
                 int.tryParse(data['total_duration'].toString());
-            print("Updated Project Total Duration: ${project.total_duration}");
           }
 
           // Traitement des modules et tâches
@@ -225,19 +210,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           setState(() {
             _projects[index] = project;
-            if (project.isComplete) {
-              completeProjects.add(project);
-              incompleteProjects.removeWhere((p) => p.id == projectId);
-            } else {
-              incompleteProjects.add(project);
-              completeProjects.removeWhere((p) => p.id == projectId);
-            }
+            completeProjects.add(project);
+            incompleteProjects.removeWhere((p) =>
+                p.id ==
+                projectId); // S'assure que le projet est retiré des incomplets
           });
 
           print("Project after update: $project");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                "Project ${project.name} updated and marked as ${project.isComplete ? 'Complete' : 'Incomplete'}"),
+            content:
+                Text("Project ${project.name} updated and marked as Complete"),
             duration: Duration(seconds: 2),
           ));
         }
