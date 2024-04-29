@@ -8,29 +8,38 @@ class ProjectDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return projects[index].startDate;
+    // Fournir une date par défaut si startDate est nul
+    return projects[index].startDate ?? DateTime.now();
   }
 
   @override
   DateTime getEndTime(int index) {
-    return projects[index].endDate;
+    // Fournir une date par défaut si endDate est nul
+    return projects[index].endDate ?? DateTime.now();
   }
 
   @override
   String getSubject(int index) {
-    return projects[index]
-        .modules
-        .first
-        .moduleName; // Utilisation du nom du premier module comme sujet
+    // Retourner le nom du projet comme sujet
+    return projects[index].name;
   }
 
+  @override
   String getDetails(int index) {
     String details = '';
-    for (var module in projects[index].modules) {
-      details += ' - ${module.moduleName}:\n';
-      for (var task in module.tasks) {
-        details += '   * ${task.taskName}\n';
+    if (projects[index].modules.isNotEmpty) {
+      for (var module in projects[index].modules) {
+        details += ' - ${module.moduleName}:\n';
+        if (module.tasks.isNotEmpty) {
+          for (var task in module.tasks) {
+            details += '   * ${task.taskName}\n';
+          }
+        } else {
+          details += '   No tasks\n';
+        }
       }
+    } else {
+      details = 'No modules available';
     }
     return details;
   }

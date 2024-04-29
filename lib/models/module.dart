@@ -1,31 +1,54 @@
 import 'task.dart';
 
 class Module {
-  final String moduleName;
-  final DateTime moduleStartDate;
-  final int totalDuration;
-  final DateTime moduleEndDate;
-  final List<Task> tasks;
+  String id;
+  String moduleName;
+  int? totalDuration;
+  DateTime? moduleStartDate;
+  DateTime? moduleEndDate;
+  String projectID; // Ajout du champ projectID
+  List<Task> tasks;
 
   Module({
+    required this.id,
     required this.moduleName,
-    required this.moduleStartDate,
-    required this.totalDuration,
-    required this.moduleEndDate,
+    this.totalDuration,
+    this.moduleStartDate,
+    this.moduleEndDate,
+    required this.projectID, // Modification
     required this.tasks,
   });
 
+  // In Module.fromJson
   factory Module.fromJson(Map<String, dynamic> json) {
-    List<Task> tasks = (json['tasks'] as List)
-        .map((taskData) => Task.fromJson(taskData))
-        .toList();
+    print("Debug Module - ID: ${json['_id']}, Name: ${json['module_name']}");
 
+    int? totalDuration = json['total_duration'] as int?;
     return Module(
-      moduleName: json['module_name'],
-      totalDuration: json['total_duration'],
-      moduleStartDate: DateTime.parse(json['module_start_date']),
-      moduleEndDate: DateTime.parse(json['module_end_date']),
-      tasks: tasks,
+      id: json['_id'] ?? 'default-module-id',
+      moduleName: json['module_name'] ?? 'Unnamed Module',
+      totalDuration: json['total_duration'] ?? 0,
+      moduleStartDate: json['module_start_date'] != null
+          ? DateTime.tryParse(json['module_start_date'])
+          : null,
+      moduleEndDate: json['module_end_date'] != null
+          ? DateTime.tryParse(json['module_end_date'])
+          : null,
+      projectID: json['projectID'] ?? 'default-project-id',
+      tasks: (json['tasks'] as List? ?? [])
+          .map((taskJson) => Task.fromJson(taskJson))
+          .toList(),
     );
+  }
+  void updateWithPredictedData(Map<String, dynamic> data) {
+    if (data.containsKey('module_start_date')) {
+      this.moduleStartDate = DateTime.parse(data['module_start_date']);
+    }
+    if (data.containsKey('module_end_date')) {
+      this.moduleEndDate = DateTime.parse(data['module_end_date']);
+    }
+    if (data.containsKey('total_duration')) {
+      this.totalDuration = data['total_duration'];
+    }
   }
 }
