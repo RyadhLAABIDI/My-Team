@@ -253,7 +253,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         Expanded(
           child: buildAnimatedButton(
             icon: Icons.list,
-            label: 'Tous',
+            label: 'All',
             color: Colors.blue,
             onPressed: () {
               _refreshData();
@@ -265,7 +265,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         Expanded(
           child: buildAnimatedButton(
             icon: Icons.check_circle_outline,
-            label: 'Plannifier',
+            label: 'Schedule',
             color: Colors.green,
             onPressed: () {
               _refreshData();
@@ -277,7 +277,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         Expanded(
           child: buildAnimatedButton(
             icon: Icons.remove_circle_outline,
-            label: 'Pas encore',
+            label: 'Not yet',
             color: Colors.red,
             onPressed: () {
               _refreshData();
@@ -304,16 +304,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
         elevation: 8, // Élévation par défaut
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         textStyle: TextStyle(fontWeight: FontWeight.bold),
-        shadowColor: color.withOpacity(0.5),
+        shadowColor: color.withOpacity(0.9),
         side: BorderSide(
-          color: Colors.white,
+          color: Colors.black,
           width: 2,
         ),
       ).copyWith(
@@ -751,41 +751,66 @@ class _CalendarScreenState extends State<CalendarScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.calendar_today,
-                color: Colors.black), // Icône du calendrier
-            SizedBox(width: 8), // Espacement entre l'icône et le texte
+            Icon(Icons.calendar_today, color: Colors.black),
+            SizedBox(width: 8),
             Text(
               'Project Calendar',
-              style:
-                  TextStyle(color: Colors.black), // Couleur du texte en blanc
+              style: TextStyle(color: Colors.black),
             ),
           ],
         ),
-        backgroundColor: Colors.orange, // Couleur de fond de l'app bar en noir
+        backgroundColor: Colors.orange,
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 10),
-            buildFilterControls(),
-            SizedBox(height: 20),
-            buildProjectDetailsCard(),
-            SizedBox(height: 20),
-            build3DTitle(), // Ajoutez ici le widget du titre stylisé
-            Container(
-              height: 200, // Définir une hauteur fixe pour la liste des projets
-              child: buildProjectList(), // Ajouter la liste des projets ici
-            ),
-            SizedBox(height: 20),
-            Container(
-              height: MediaQuery.of(context).size.height *
-                  0.5, // Utiliser une hauteur calculée pour le calendrier
-              child:
-                  buildCalendar(), // Intégrer le calendrier dans l'interface utilisateur
-            ),
-          ],
+      body: Padding(
+        padding: EdgeInsets.all(12),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 10),
+              buildFilterControls(),
+              SizedBox(height: 20),
+              buildProjectDetailsCard(),
+              SizedBox(height: 20),
+              build3DTitle(),
+              SizedBox(height: 20),
+              Container(
+                height: 200,
+                child: buildProjectList(),
+              ),
+              SizedBox(height: 20),
+              GestureDetector(
+                onTapDown: (_) => setState(() {}),
+                onTapUp: (_) => setState(() {}),
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: buildCalendar(),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.white, Colors.grey[300]!],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(
+                            0.8), // Plus foncée pour un effet 3D plus marqué
+                        spreadRadius: 0,
+                        blurRadius:
+                            50, // Flou plus important pour une ombre plus dramatique
+                        offset: Offset(0,
+                            25), // Ombre décalée plus bas pour un effet de profondeur
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
