@@ -1,20 +1,24 @@
 // task.dart
 class Task {
   String id;
-  String taskName;
+  //String taskName;
   String taskDescription;
+  final List<String> team;
   int? duration;
   DateTime? startDate;
   DateTime? endDate;
   String moduleID; // Ajout du champ moduleID
+  final bool completed;
 
   Task({
     required this.id,
-    required this.taskName,
+    // required this.taskName,
     required this.taskDescription,
+    required this.team,
     this.duration,
     this.startDate,
     this.endDate,
+    required this.completed,
     required this.moduleID, // Modification
   });
 
@@ -23,9 +27,11 @@ class Task {
     print("Debug Task - ID: ${json['_id']}, Name: ${json['task_name']}");
     return Task(
       id: json['_id'] ?? 'default-task-id',
-      taskName: json['task_name'] ?? 'Unnamed Task',
+      //taskName: json['task_name'] ?? 'Unnamed Task',
       taskDescription: json['task_description'] ?? 'No description provided',
+      team: List<String>.from(json['team']),
       duration: json['duration'],
+      completed: json['completed'],
       startDate: json['start_date'] != null
           ? DateTime.tryParse(json['start_date'])
           : null,

@@ -32,7 +32,7 @@ class ProjectDataSource extends CalendarDataSource {
         details += ' - ${module.moduleName}:\n';
         if (module.tasks.isNotEmpty) {
           for (var task in module.tasks) {
-            details += '   * ${task.taskName}\n';
+            details += '   * ${task.taskDescription}\n';
           }
         } else {
           details += '   No tasks\n';

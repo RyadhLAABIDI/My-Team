@@ -8,6 +8,7 @@ class Module {
   DateTime? moduleEndDate;
   String projectID; // Ajout du champ projectID
   List<Task> tasks;
+  final List<String> teamM;
 
   Module({
     required this.id,
@@ -17,6 +18,7 @@ class Module {
     this.moduleEndDate,
     required this.projectID, // Modification
     required this.tasks,
+    required this.teamM,
   });
 
   // In Module.fromJson
@@ -28,6 +30,7 @@ class Module {
       id: json['_id'] ?? 'default-module-id',
       moduleName: json['module_name'] ?? 'Unnamed Module',
       totalDuration: json['total_duration'] ?? 0,
+      teamM: List<String>.from(json['teamM']),
       moduleStartDate: json['module_start_date'] != null
           ? DateTime.tryParse(json['module_start_date'])
           : null,

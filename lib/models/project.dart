@@ -5,6 +5,10 @@ class Project {
   String name;
   List<Module> modules;
   int? total_duration;
+  List<String> keywords;
+  String teamLeader;
+  List<String> members;
+
   DateTime? startDate; // Déclaré comme DateTime nullable
   DateTime? endDate; // Déclaré comme DateTime nullable
   bool isComplete; // Champ booléen pour l'état du projet
@@ -14,6 +18,9 @@ class Project {
     required this.name,
     required this.modules,
     this.total_duration,
+    required this.keywords,
+    required this.teamLeader,
+    required this.members,
     this.startDate, // Déclaré comme DateTime nullable
     this.endDate, // Déclaré comme DateTime nullable
     this.isComplete =
@@ -32,6 +39,9 @@ class Project {
           .map((moduleData) => Module.fromJson(moduleData))
           .toList(),
       total_duration: json['total_duration'] ?? 0,
+      keywords: List<String>.from(json['keywords']),
+      teamLeader: json['teamLeader'],
+      members: List<String>.from(json['members']),
       startDate: json['startDate'] != null
           ? DateTime.tryParse(json['startDate'])
           : null,

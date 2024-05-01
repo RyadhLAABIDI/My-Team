@@ -72,12 +72,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
     fetchProjects();
   }
 
-  Future<void> fetchProjects() async {
+  Future<void> fetchProjects({String? email}) async {
     setState(() {
       _isLoading = true;
     });
+
     try {
-      final Uri url = Uri.parse('http://192.168.1.219:3000/don/getAllProjects');
+      // Construction de l'URL avec ou sans paramètre email
+      String baseUrl = 'http://192.168.1.219:3000/don/getAll';
+      Uri url = Uri.parse(email != null ? '$baseUrl?email=$email' : baseUrl);
+
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -392,6 +396,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 'Durée Totale : ${_selectedProject!.total_duration} jours',
                 style: TextStyle(fontSize: 16),
               ),
+              Text(
+                'Chef de Projet : ${_selectedProject!.teamLeader}',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                'Mots Clés : ${_selectedProject!.keywords.join(", ")}',
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                'Membres : ${_selectedProject!.members.join(", ")}',
+                style: TextStyle(fontSize: 16),
+              ),
               SizedBox(height: 20),
               Divider(),
               Text(
@@ -433,6 +449,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             'Date de Fin : ${formatDate(module.moduleEndDate)}',
                             style: TextStyle(fontSize: 14, color: Colors.white),
                           ),
+                          Text(
+                            'Équipe du Module : ${module.teamM.join(", ")}',
+                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          ),
                           SizedBox(height: 10),
                           Text('Tâches:',
                               style: TextStyle(
@@ -440,12 +460,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   fontSize: 16,
                                   color: Colors.white)),
                           ...module.tasks.map((task) => ListTile(
-                                title: Text(task.taskName,
+                                title: Text(task.taskDescription,
                                     style: TextStyle(color: Colors.white)),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text('Durée : ${task.duration} jours',
+                                        style:
+                                            TextStyle(color: Colors.white70)),
+                                    Text('chef : ${task.team} jours',
                                         style:
                                             TextStyle(color: Colors.white70)),
                                     Text(
@@ -454,6 +477,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             TextStyle(color: Colors.white70)),
                                     Text(
                                         'Date de Fin : ${formatDate(task.endDate)}',
+                                        style:
+                                            TextStyle(color: Colors.white70)),
+                                    Text(
+                                        'Complétée : ${task.completed ? "Oui" : "Non"}',
                                         style:
                                             TextStyle(color: Colors.white70)),
                                   ],
@@ -540,7 +567,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(top: 5.0),
                             child: Text(
-                              'Task: ${task.taskName} - ${task.duration} days',
+                              'Task: ${task.taskDescription} - ${task.duration} days',
                               style: TextStyle(color: Colors.white70),
                             ),
                           );
@@ -846,7 +873,7 @@ class ProjectDataSource extends CalendarDataSource {
               startTime: taskDate,
               endTime: taskDate,
               isAllDay: true,
-              subject: '🔧 Début de tâche: ${task.taskName}',
+              subject: '🔧 Début de tâche: ${task.taskDescription}',
               color: taskColor,
               notes: 'icons/task.png',
             ));
@@ -856,7 +883,7 @@ class ProjectDataSource extends CalendarDataSource {
                 startTime: taskEndDate,
                 endTime: taskEndDate,
                 isAllDay: true,
-                subject: '✅ Fin de tâche: ${task.taskName}',
+                subject: '✅ Fin de tâche: ${task.taskDescription}',
                 color: Colors.red,
                 notes: 'icons/check.png',
               ));
