@@ -79,7 +79,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     try {
       // Construction de l'URL avec ou sans paramètre email
-      String baseUrl = 'http://192.168.1.116:3000/don/getbyemail';
+      String baseUrl = 'http://192.168.1.116:3000/planning/getbyemail';
       Uri url = Uri.parse(email != null ? '$baseUrl?email=$email' : baseUrl);
 
       final response = await http.post(url);
@@ -158,7 +158,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> predictAndCompleteProject(String projectId) async {
     try {
       final Uri url = Uri.parse(
-          'http://192.168.1.116:3000/don/predict_task_duration/$projectId');
+          'http://192.168.1.116:3000/planning/predict_task_duration/$projectId');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
