@@ -79,10 +79,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     try {
       // Construction de l'URL avec ou sans paramètre email
-      String baseUrl = 'http://192.168.1.219:3000/don/getAll';
+      String baseUrl = 'http://192.168.1.116:3000/don/getbyemail';
       Uri url = Uri.parse(email != null ? '$baseUrl?email=$email' : baseUrl);
 
-      final response = await http.get(url);
+      final response = await http.post(url);
 
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
@@ -158,7 +158,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> predictAndCompleteProject(String projectId) async {
     try {
       final Uri url = Uri.parse(
-          'http://192.168.1.219:3000/don/predict_task_duration/$projectId');
+          'http://192.168.1.116:3000/don/predict_task_duration/$projectId');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -171,15 +171,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
               true; // Supposons que la prédiction marque le projet comme complet
 
           final DateFormat formatter = DateFormat('yyyy-MM-dd');
-          if (data.containsKey('project_start_date')) {
-            project.startDate = formatter.parse(data['project_start_date']);
-          }
-          if (data.containsKey('project_end_date')) {
-            project.endDate = formatter.parse(data['project_end_date']);
-          }
-          if (data.containsKey('total_duration')) {
-            project.total_duration =
-                int.tryParse(data['total_duration'].toString());
+          if (data.containsKey('project_info')) {
+            var projectInfo = data['project_info'];
+            if (projectInfo.containsKey('startDate')) {
+              project.startDate = formatter.parse(projectInfo['startDate']);
+            }
+            if (data.containsKey('project_info')) {
+              var projectInfo = data['project_info'];
+              if (projectInfo.containsKey('endDate')) {
+                project.endDate = formatter.parse(projectInfo['endDate']);
+              }
+
+              if (data.containsKey('project_info') &&
+                  data['project_info'].containsKey('total_duration')) {
+                project.total_duration = int.tryParse(
+                    data['project_info']['total_duration'].toString());
+                print(
+                    "Updated Project Total Duration: ${project.total_duration}");
+              } else {
+                print("Total duration not found in response");
+              }
+            }
           }
 
           // Traitement des modules et tâches
@@ -384,6 +396,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
               ),
               SizedBox(height: 10),
+              Text('Description : ${_selectedProject!.description}',
+                  style: TextStyle(fontSize: 16)),
               Text(
                 'Date de Début : ${formatDate(_selectedProject!.startDate)}',
                 style: TextStyle(fontSize: 16),
@@ -465,6 +479,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Text(
+                                        'Description : ${task.taskDescription} ',
+                                        style:
+                                            TextStyle(color: Colors.white70)),
                                     Text('Durée : ${task.duration} jours',
                                         style:
                                             TextStyle(color: Colors.white70)),

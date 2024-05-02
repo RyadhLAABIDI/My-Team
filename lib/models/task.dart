@@ -1,7 +1,7 @@
 // task.dart
 class Task {
   String id;
-  //String taskName;
+
   String taskDescription;
   final List<String> team;
   int? duration;
@@ -12,7 +12,6 @@ class Task {
 
   Task({
     required this.id,
-    // required this.taskName,
     required this.taskDescription,
     required this.team,
     this.duration,
@@ -22,12 +21,25 @@ class Task {
     required this.moduleID, // Modification
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'module_id': id,
+      'projectID': id,
+      'task_description': taskDescription,
+      'team': team,
+      'completed': completed,
+      'Duration': Duration,
+      'startDate': startDate?.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+    };
+  }
+
   // In Task.fromJson
   factory Task.fromJson(Map<String, dynamic> json) {
-    print("Debug Task - ID: ${json['_id']}, Name: ${json['task_name']}");
+    // print("Debug Task - ID: ${json['_id']}");
     return Task(
       id: json['_id'] ?? 'default-task-id',
-      //taskName: json['task_name'] ?? 'Unnamed Task',
       taskDescription: json['task_description'] ?? 'No description provided',
       team: List<String>.from(json['team']),
       duration: json['duration'],

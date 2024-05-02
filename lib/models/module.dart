@@ -20,14 +20,25 @@ class Module {
     required this.tasks,
     required this.teamM,
   });
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'module_name': moduleName,
+      'moduleStartDate': moduleStartDate?.toIso8601String(),
+      'moduleEndDate': moduleEndDate?.toIso8601String(),
+      'totalDuration': totalDuration,
+      'projectID': projectID,
+      'teamM': teamM,
+    };
+  }
 
   // In Module.fromJson
+  // In Module.fromJson
   factory Module.fromJson(Map<String, dynamic> json) {
-    print("Debug Module - ID: ${json['_id']}, Name: ${json['module_name']}");
+    //print("Debug Module - ID: ${json['_id']}, Name: ${json['module_name']}");
 
-    int? totalDuration = json['total_duration'] as int?;
     return Module(
-      id: json['_id'] ?? 'default-module-id',
+      id: json['_id'] ?? 'default-id', // Ensuring a default value if null
       moduleName: json['module_name'] ?? 'Unnamed Module',
       totalDuration: json['total_duration'] ?? 0,
       teamM: List<String>.from(json['teamM']),
@@ -38,11 +49,12 @@ class Module {
           ? DateTime.tryParse(json['module_end_date'])
           : null,
       projectID: json['projectID'] ?? 'default-project-id',
-      tasks: (json['tasks'] as List? ?? [])
+      tasks: (json['tasks'] as List<dynamic>? ?? [])
           .map((taskJson) => Task.fromJson(taskJson))
           .toList(),
     );
   }
+
   void updateWithPredictedData(Map<String, dynamic> data) {
     if (data.containsKey('module_start_date')) {
       this.moduleStartDate = DateTime.parse(data['module_start_date']);

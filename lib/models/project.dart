@@ -8,7 +8,7 @@ class Project {
   List<String> keywords;
   String teamLeader;
   List<String> members;
-
+  String description;
   DateTime? startDate; // Déclaré comme DateTime nullable
   DateTime? endDate; // Déclaré comme DateTime nullable
   bool isComplete; // Champ booléen pour l'état du projet
@@ -17,6 +17,7 @@ class Project {
     required this.id,
     required this.name,
     required this.modules,
+    required this.description,
     this.total_duration,
     required this.keywords,
     required this.teamLeader,
@@ -27,18 +28,34 @@ class Project {
         false, // Assurez-vous qu'isComplete a une valeur par défaut de false
   });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'totalDuration': total_duration,
+      'startDate': startDate,
+      'endDate': endDate,
+      'description': description,
+      'keywords': keywords,
+      'teamLeader': teamLeader,
+      'members': members,
+      'isComplete': isComplete
+    };
+  }
+
   // In Project.fromJson
   factory Project.fromJson(Map<String, dynamic> json) {
     print("Debug Project - ID: ${json['_id']}, Name: ${json['name']}");
 
-    int? total_duration = json['total_duration'] as int?;
+    //int? total_duration = json['total_duration'] as int?;
     return Project(
       id: json['_id'] ?? 'default-id', // Utilisez '_id' au lieu de 'id'
       name: json['name'] ?? 'Unnamed Project',
+      description: json['description'],
       modules: (json['modules'] as List? ?? [])
           .map((moduleData) => Module.fromJson(moduleData))
           .toList(),
-      total_duration: json['total_duration'] ?? 0,
+      total_duration: json['total_duration'],
       keywords: List<String>.from(json['keywords']),
       teamLeader: json['teamLeader'],
       members: List<String>.from(json['members']),
