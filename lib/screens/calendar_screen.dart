@@ -72,63 +72,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
     fetchProjects();
   }
 
-  Future<void> fetchProjects({String? email}) async {
+  Future<void> fetchProjects() async {
     setState(() {
       _isLoading = true;
     });
-
     try {
-      // Construction de l'URL avec ou sans paramètre email
-      String baseUrl = 'http://192.168.1.116:3000/planning/getbyemail';
-      Uri url = Uri.parse(email != null ? '$baseUrl?email=$email' : baseUrl);
-
-      final response = await http.post(url);
-
+      final Uri url = Uri.parse('http://192.168.1.116:3000/don/getAllProjects');
+      final response = await http.get(url);
       if (response.statusCode == 200) {
         final responseBody = json.decode(response.body);
-        print('Response Body: $responseBody');
-
-        // Réinitialiser les listes avant de les remplir à nouveau
-        final List<Project> completedProjects = [];
-        final List<Project> incompleteProjects = [];
-
-        final List<dynamic>? completedProjectsJson =
-            responseBody['completedProjects'];
-        final List<dynamic>? incompleteProjectsJson =
-            responseBody['incompleteProjects'];
-
-        print('Completed Projects JSON: $completedProjectsJson');
-        print('Incomplete Projects JSON: $incompleteProjectsJson');
-
-        if (completedProjectsJson != null) {
-          completedProjects.addAll(completedProjectsJson
-              .map((projectJson) => Project.fromJson(projectJson))
-              .toList());
+        if (responseBody.containsKey('completedProjects') &&
+            responseBody.containsKey('incompleteProjects')) {
+          List<Project> fetchedCompletedProjects =
+              (responseBody['completedProjects'] as List)
+                  .map((projectData) => Project.fromJson(projectData))
+                  .toList();
+          List<Project> fetchedIncompleteProjects =
+              (responseBody['incompleteProjects'] as List)
+                  .map((projectData) => Project.fromJson(projectData))
+                  .toList();
+          setState(() {
+            _projects = [
+              ...fetchedCompletedProjects,
+              ...fetchedIncompleteProjects
+            ];
+            completeProjects = List<Project>.from(fetchedCompletedProjects);
+            incompleteProjects = List<Project>.from(fetchedIncompleteProjects);
+            _isLoading = false;
+          });
+        } else {
+          throw FormatException('Unexpected format of the response');
         }
-
-        if (incompleteProjectsJson != null) {
-          incompleteProjects.addAll(incompleteProjectsJson
-              .map((projectJson) => Project.fromJson(projectJson))
-              .toList());
-        }
-
-        setState(() {
-          _isLoading = false;
-          _projects = [...completedProjects, ...incompleteProjects];
-          this.completeProjects = completedProjects;
-          this.incompleteProjects = incompleteProjects;
-        });
       } else {
-        print(
-            'Failed to load projects. Status code: ${response.statusCode}, Response body: ${response.body}');
-        throw FormatException(
-            'Unexpected status code: ${response.statusCode}, Body: ${response.body}');
+        throw FormatException('Unexpected status code: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching projects: $error');
       setState(() {
         _isLoading = false;
-        // You might want to set some state variable to show an error message or retry option.
       });
     }
   }
@@ -158,7 +139,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> predictAndCompleteProject(String projectId) async {
     try {
       final Uri url = Uri.parse(
-          'http://192.168.1.116:3000/planning/predict_task_duration/$projectId');
+          'http://192.168.1.116:3000/don/predict_task_duration/$projectId');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -486,7 +467,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                     Text('Durée : ${task.duration} jours',
                                         style:
                                             TextStyle(color: Colors.white70)),
-                                    Text('chef : ${task.team} jours',
+                                    Text('Membres : ${task.team} ',
                                         style:
                                             TextStyle(color: Colors.white70)),
                                     Text(
